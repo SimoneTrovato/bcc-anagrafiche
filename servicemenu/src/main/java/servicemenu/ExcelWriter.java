@@ -5,9 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Reader;
-import java.nio.file.DirectoryIteratorException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -17,70 +15,76 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import javax.naming.spi.DirectoryManager;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import com.google.gson.Gson;
 
-public class Test {
+import content.MenuContent;
+import content.MenuNode;
+
+public class ExcelWriter {
 
 	static int controw = 0;
 	static int depth =-1;
-	static int max=0;
-//metodo per settare valore celle 
-	public static void ricorsivo(List<MenuNode> nodes, Sheet sheet) {
+	static int maxDepth=0;
+
+	// metodo per settare valore celle 
+	public static void recursive(List<MenuNode> nodes, Sheet sheet) {
 		if (nodes !=null) {
 			depth++;
-			for(MenuNode nodi : nodes) {
-				//	System.out.println(depth);
-				if(max<=depth) {
-					max=depth;
-				}
+			for(MenuNode currentNode : nodes) {
+
 				Row row = sheet.createRow(++controw);
-				int cellnum = -1;
+				int cellnum = 0;
 
 				row.createCell(depth).setCellValue("X");
 
-				if(nodi.nodeType.contains("service") ) {
-					row.createCell(++cellnum+profondita(nodes, sheet)).setCellValue(nodi.nodeId);
+				if(currentNode.getNodeType().contains("service") ) {
+					row.createCell(++cellnum+maxDepth).setCellValue(currentNode.getNodeId());
+					sheet.autoSizeColumn(cellnum+maxDepth);
+
 				}
 				else {
 					++cellnum;
 				}
-				row.createCell(++cellnum+profondita(nodes, sheet)).setCellValue(nodi.nodeName);
-				row.createCell(++cellnum+profondita(nodes, sheet)).setCellValue(nodi.nodeType);
-				row.createCell(++cellnum+profondita(nodes, sheet)).setCellValue(nodi.groupType);
-				row.createCell(++cellnum+profondita(nodes, sheet)).setCellValue(nodi.flowType);
+				row.createCell(++cellnum+maxDepth).setCellValue(currentNode.getNodeName());
+				sheet.autoSizeColumn(cellnum+maxDepth);
+				row.createCell(++cellnum+maxDepth).setCellValue(currentNode.getNodeType());
+				sheet.autoSizeColumn(cellnum+maxDepth);
 
-				if( nodi.nodes == null & nodi.resource != null) {
-					row.createCell(++cellnum+profondita(nodes, sheet)).setCellValue(nodi.resource.id);
-					//	System.out.println(nodi.resource.id);
+				row.createCell(++cellnum+maxDepth).setCellValue(currentNode.getGroupType());
+				sheet.autoSizeColumn(cellnum+maxDepth);
+
+				row.createCell(++cellnum+maxDepth).setCellValue(currentNode.getFlowType());
+				sheet.autoSizeColumn(cellnum+maxDepth);
+
+				if(currentNode.getNodes() == null & currentNode.getResource() != null) {
+					row.createCell(++cellnum+maxDepth).setCellValue(currentNode.getResource().getId());	
+					sheet.autoSizeColumn(cellnum+maxDepth);
 				}				
-				ricorsivo(nodi.nodes, sheet);
+				recursive(currentNode.getNodes(), sheet);
 			}				
 			depth--;	
 		}	
 	}
 
-//metodo per trovare massima profondità dei nodi
-	public static int profondita(List<MenuNode> nodes, Sheet sheet) {
+	// metodo per trovare massima profonditï¿½ dei nodi
+	public static void calcMaxDepth(List<MenuNode> nodes) {
 		if (nodes !=null) {
 			depth++;
-			for(MenuNode nodi : nodes) {
-				//	System.out.println(depth);
-				if(max<=depth) {
-					max=depth;
+			for(MenuNode currentNode : nodes) {
+				if(maxDepth<=depth) {
+					maxDepth=depth;
 				}				
-				profondita(nodi.nodes, sheet);
+				calcMaxDepth(currentNode.getNodes());
 			}				
 			depth--;	
-		}		//	System.out.println(max);
-		return max;
+		}	
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -92,20 +96,11 @@ public class Test {
 		FileReader fReader=new FileReader("."+File.separator+"path.properties");
 		Properties p = new Properties();
 		p.load(fReader); 
-	//	System.out.println(p.getProperty("inputFolder"));
+
 		try {
 			//leggo il path
-			
-			/* Path pathAbsolute = Paths.get(System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+p.getProperty("inputFolder")+File.separator+p.getProperty("jsonFile"));
-		        Path pathBase = Paths.get("/"+p.getProperty("inputFolder")+File.separator+p.getProperty("jsonFile"));
-		        System.out.println(pathAbsolute);
-		        System.out.println(pathBase);
-
-		        Path pathRelative = pathBase.normalize().relativize(pathAbsolute);
-		        System.out.println(pathRelative);
-			*/
 			Path inputPath = Paths.get("."+File.separator+p.getProperty("inputFolder"), p.getProperty("jsonFile"));
-			
+
 			reader = Files.newBufferedReader(inputPath);
 			MenuContent mc = gson.fromJson(reader,MenuContent.class);			
 			Sheet sheet = wb.createSheet("Menu ".concat(mc.getVersion()));
@@ -114,14 +109,17 @@ public class Test {
 			colonne.addAll(Arrays.asList("ServiceId" , "NodeName", "NodeType", "GroupType" , "FlowType", "ResourceId"));	
 			Row row = sheet.createRow(0);
 
-
 			CellStyle style = wb.createCellStyle();
 			Font font = wb.createFont();
 			font.setBold(true);
 			style.setFont(font);
 
-			//crea prime colonne numerate
-			for(int i=0; i<=profondita(mc.getNodes(), sheet); i++) {
+			// calcolo la massima profonditÃ  dell'albero e lo setto 
+			// nella variabile profonditaMax
+			calcMaxDepth(mc.getNodes());
+
+			// crea prime colonne numerate
+			for(int i=0; i<=maxDepth; i++) {
 				Cell cell = row.createCell(i);{
 					cell.setCellValue(i);
 					cell.setCellStyle(style);
@@ -130,16 +128,15 @@ public class Test {
 			}
 			//crea colonne con campi
 			for( int i=0; i<colonne.size(); i++) {
-				Cell cell = row.createCell(i+profondita(mc.getNodes(), sheet)+1);
+				Cell cell = row.createCell(i+maxDepth+1);
 				cell.setCellValue(colonne.get(i));
 				cell.setCellStyle(style);
-				sheet.autoSizeColumn(i+profondita(mc.getNodes(), sheet)+1);
+				sheet.autoSizeColumn(i+maxDepth+1);
 
 			}
-			
-			ricorsivo(mc.getNodes(), sheet);
-//file output
-			//String path = System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+p.getProperty("outputFolder")+File.separator;
+
+			recursive(mc.getNodes(), sheet);
+			//file output			
 			Path outputFile = Paths.get("."+File.separator+p.getProperty("outputFolder"));
 			String output = outputFile.toString();
 			File file = new File(outputFile.toString());
@@ -148,7 +145,6 @@ public class Test {
 			}
 			try  (FileOutputStream fileOut = new FileOutputStream(output.concat(File.separator).concat(p.getProperty("excelFile"))))
 			{
-
 
 				wb.write(fileOut);
 				wb.close();

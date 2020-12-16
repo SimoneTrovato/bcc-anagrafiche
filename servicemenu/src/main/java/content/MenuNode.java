@@ -1,22 +1,23 @@
-package servicemenu;
+package content;
 
 import java.util.List;
 
 public class MenuNode {
-	int nodeId;
-	String nodeName;
-	String nodeType;
-	String groupType;
-	String flowType;
-	String status;
-	int startValidityT;
-	int sendValidityTs;
-	String tag;
-	List<MenuNode> nodes;
-	Resource resource;
+	
+	private int nodeId;
+	private String nodeName;
+	private String nodeType;
+	private String groupType;
+	private String flowType;
+	private String status;
+	private int startValidityT;
+	private int sendValidityTs;
+	private String tag;
+	private List<MenuNode> nodes;
+	private Resource resource;
+	
 	public MenuNode(int nodeId, String nodeName, String nodeType, String groupType, String flowType, String status,
 			int startValidityT, int sendValidityTs, String tag, List<MenuNode> nodes, Resource resource) {
-		super();
 		this.nodeId = nodeId;
 		this.nodeName = nodeName;
 		this.nodeType = nodeType;
@@ -29,36 +30,45 @@ public class MenuNode {
 		this.nodes = nodes;
 		this.resource = resource;
 	}
+	
 	public int getNodeId() {
 		return nodeId;
 	}
+	
 	public void setNodeId(int nodeId) {
 		this.nodeId = nodeId;
 	}
+	
 	public String getNodeName() {
 		return nodeName;
 	}
+	
 	public void setNodeName(String nodeName) {
 		this.nodeName = nodeName;
 	}
+	
 	public String getNodeType() {
 		return nodeType;
 	}
+	
 	public void setNodeType(String nodeType) {
 		this.nodeType = nodeType;
 	}
+	
 	public String getGroupType() {
 		return groupType;
 	}
 	public void setGroupType(String groupType) {
 		this.groupType = groupType;
 	}
+	
 	public String getFlowType() {
 		return flowType;
 	}
 	public void setFlowType(String flowType) {
 		this.flowType = flowType;
 	}
+	
 	public String getStatus() {
 		return status;
 	}
@@ -95,9 +105,5 @@ public class MenuNode {
 	public void setResource(Resource resource) {
 		this.resource = resource;
 	}
-	
-	
-	
-	
-	
+
 }

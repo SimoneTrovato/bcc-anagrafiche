@@ -1,9 +1,10 @@
-package servicemenu;
+package content;
 
 import java.util.List;
 
 
 public class MenuContent {
+	
     private String version;
     private List<MenuNode> nodes;
 
@@ -31,8 +32,6 @@ public class MenuContent {
 
 	public void setNodes(List<MenuNode> nodes) {
 		this.nodes = nodes;
-	
-
-}
+	}
   
 }

@@ -1,15 +1,18 @@
-package servicemenu;
+package content;
 
 public class Resource {
-	int id;
-	String type;
-	String version;
+	
+	private int id;
+	private String type;
+	private String version;
+	
 	public Resource(int id, String type, String version) {
-		super();
+		
 		this.id = id;
 		this.type = type;
 		this.version = version;
 	}
+	
 	public int getId() {
 		return id;
 	}
