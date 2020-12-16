@@ -7,24 +7,24 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.nio.file.DirectoryIteratorException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import javax.naming.spi.DirectoryManager;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.google.gson.Gson;
 
 public class Test {
@@ -85,17 +85,28 @@ public class Test {
 
 	public static void main(String[] args) throws IOException {
 
-		Workbook wb = new HSSFWorkbook();
+		XSSFWorkbook wb = new XSSFWorkbook();
 		Gson gson = new Gson();
 		Reader reader;
 		//leggo properties
-		FileReader fReader=new FileReader(System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+"path.properties");
+		FileReader fReader=new FileReader("."+File.separator+"path.properties");
 		Properties p = new Properties();
 		p.load(fReader); 
 	//	System.out.println(p.getProperty("inputFolder"));
 		try {
 			//leggo il path
-			reader = Files.newBufferedReader(Paths.get(System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+p.getProperty("inputFolder")+File.separator+p.getProperty("jsonFile")));
+			
+			/* Path pathAbsolute = Paths.get(System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+p.getProperty("inputFolder")+File.separator+p.getProperty("jsonFile"));
+		        Path pathBase = Paths.get("/"+p.getProperty("inputFolder")+File.separator+p.getProperty("jsonFile"));
+		        System.out.println(pathAbsolute);
+		        System.out.println(pathBase);
+
+		        Path pathRelative = pathBase.normalize().relativize(pathAbsolute);
+		        System.out.println(pathRelative);
+			*/
+			Path inputPath = Paths.get("."+File.separator+p.getProperty("inputFolder"), p.getProperty("jsonFile"));
+			
+			reader = Files.newBufferedReader(inputPath);
 			MenuContent mc = gson.fromJson(reader,MenuContent.class);			
 			Sheet sheet = wb.createSheet("Menu ".concat(mc.getVersion()));
 
@@ -126,12 +137,14 @@ public class Test {
 			
 			ricorsivo(mc.getNodes(), sheet);
 //file output
-			String path = System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+p.getProperty("outputFolder")+File.separator;
-			File file = new File(path);
+			//String path = System.getProperty("user.home")+File.separator+"Desktop"+File.separator+"esercizio"+File.separator+p.getProperty("outputFolder")+File.separator;
+			Path outputFile = Paths.get("."+File.separator+p.getProperty("outputFolder"));
+			String output = outputFile.toString();
+			File file = new File(outputFile.toString());
 			if(!file.exists()) {
 				file.mkdirs();
 			}
-			try  (OutputStream fileOut = new FileOutputStream(path.concat(p.getProperty("excelFile")))) 
+			try  (FileOutputStream fileOut = new FileOutputStream(output.concat(File.separator).concat(p.getProperty("excelFile"))))
 			{
 
 
