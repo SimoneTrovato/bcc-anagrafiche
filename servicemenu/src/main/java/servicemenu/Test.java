@@ -125,6 +125,7 @@ public class Test {
 				Cell cell = row.createCell(i);{
 					cell.setCellValue(i);
 					cell.setCellStyle(style);
+					sheet.autoSizeColumn(i);
 				}
 			}
 			//crea colonne con campi
@@ -132,6 +133,7 @@ public class Test {
 				Cell cell = row.createCell(i+profondita(mc.getNodes(), sheet)+1);
 				cell.setCellValue(colonne.get(i));
 				cell.setCellStyle(style);
+				sheet.autoSizeColumn(i+profondita(mc.getNodes(), sheet)+1);
 
 			}
 			
