@@ -25,6 +25,22 @@ public class OrdineServiceImpl implements OrdineService {
 	@Autowired
 	private ArticoloRepository articoloRepo;
 
+	private  List<ArticoloQuantita> setLista(List<OrdineArticolo> articoli , List<ArticoloQuantita> articoliQList) {
+		
+		for(OrdineArticolo ordiniArt : articoli) {
+			ArticoloQuantita artQ = new ArticoloQuantita();
+			artQ.setIdArticolo(ordiniArt.getArticolo().getId());
+			artQ.setCodice(ordiniArt.getArticolo().getCodice());
+			artQ.setNome(ordiniArt.getArticolo().getNome());
+			artQ.setQuantità(ordiniArt.getQuantità());
+			articoliQList.add(artQ);
+		}
+		
+		return articoliQList;
+		
+	}
+	
+	
 	@Override
 	public Integer creaOrdine(OrdineRequest ordineRequest) {
 		Ordine ordine = new Ordine();
@@ -54,16 +70,9 @@ public class OrdineServiceImpl implements OrdineService {
 			List<OrdineArticolo> articoli = ordineArtRepo.findByOrdine(ordini);
 			OrdineResponse response = new OrdineResponse();
 			List<ArticoloQuantita> articoliQList = new ArrayList<>();
-			for(OrdineArticolo ordiniArt : articoli) {
-				ArticoloQuantita artQ = new ArticoloQuantita();
-				artQ.setIdArticolo(ordiniArt.getArticolo().getId());
-				artQ.setCodice(ordiniArt.getArticolo().getCodice());
-				artQ.setNome(ordiniArt.getArticolo().getNome());
-				artQ.setQuantità(ordiniArt.getQuantità());
-				articoliQList.add(artQ);
-			}
+			
 			response.setOrdine(ordini);
-			response.setArticoli(articoliQList);
+			response.setArticoli(setLista(articoli, articoliQList));
 			listaOrdResp.add(response);
 		}
 		return listaOrdResp;
@@ -76,16 +85,8 @@ public class OrdineServiceImpl implements OrdineService {
 			Ordine ordine = ordineRepo.findById(idOrdine).get();
 			List<OrdineArticolo> articoli = ordineArtRepo.findByOrdine(ordine);
 			List<ArticoloQuantita> articoliQList = new ArrayList<>();
-			for(OrdineArticolo ordiniArt : articoli) {
-				ArticoloQuantita artQ = new ArticoloQuantita();
-				artQ.setIdArticolo(ordiniArt.getArticolo().getId());
-				artQ.setCodice(ordiniArt.getArticolo().getCodice());
-				artQ.setNome(ordiniArt.getArticolo().getNome());
-				artQ.setQuantità(ordiniArt.getQuantità());
-				articoliQList.add(artQ);
-			}
 			response.setOrdine(ordine);
-			response.setArticoli(articoliQList);
+			response.setArticoli(setLista(articoli, articoliQList));
 		}
 		return response;
 	}

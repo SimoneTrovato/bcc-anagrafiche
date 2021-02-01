@@ -68,4 +68,6 @@ public class Ordine {
 	@NotFound(action = NotFoundAction.IGNORE)
 	 private List<OrdineArticolo> ordiniArticoli;
 	
+	
+	
 }
