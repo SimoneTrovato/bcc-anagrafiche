@@ -8,13 +8,17 @@ import org.springframework.stereotype.Service;
 
 import eu.winwinit.bcc.entities.Articolo;
 import eu.winwinit.bcc.repository.ArticoloRepository;
+import eu.winwinit.bcc.repository.OrdineArticoloRepository;
 @Service
 
 public class ArticoloServiceImpl implements ArticoloService {
 
 	@Autowired
 	private ArticoloRepository repository;
-
+@Autowired
+private OrdineArticoloRepository ordArtRepo;
+	
+	
 	@Override
 	public List<Articolo> getAllArticoli() {
 		return repository.findAll();
@@ -35,6 +39,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 
 	@Override
 	public boolean deleteArticolo(Integer id) {
+		if(ordArtRepo.findByArticolo(repository.findById(id).get()) != repository.findById(id).get())
 		repository.deleteById(id);
 		return (!repository.findById(id).isPresent());
 	}

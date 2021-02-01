@@ -1,5 +1,6 @@
 package eu.winwinit.bcc.controllers;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +39,29 @@ public class OrdineController {
 	}
 
 	@GetMapping(path = "read/{id}")
-	public OrdineResponse find(@PathVariable("id") Integer id) {
-		return ordineService.getOrdineById(id);
-	}
+	public ResponseEntity<?> find(@PathVariable("id") Integer id) {
+		if(ordineService.getOrdineById(id).getOrdine() != null) {
+			return new ResponseEntity<>(ordineService.getOrdineById(id),HttpStatus.OK);
+		}
+		else
+			return new ResponseEntity<>("Ordine non esistente", HttpStatus.BAD_REQUEST);
 
+	}
 	@DeleteMapping(path = "/delete/{id}")
-	public void delete(@PathVariable("id") Integer id) {
-		ordineService.deleteOrdine(id);
+	public ResponseEntity<String> delete(@PathVariable("id") Integer id)  {
+		if(ordineService.getOrdineById(id).getOrdine() !=null) {
+		if(ordineService.deleteOrdine(id)) {
+			return new ResponseEntity<>("Ordine eliminato con successo", HttpStatus.OK);
+		}
+		else
+    		return new ResponseEntity<>("Impossibile eliminare l'ordine con id "+id, HttpStatus.OK);
+		}else
+        return new ResponseEntity<>("Ordine non esistente", HttpStatus.BAD_REQUEST);
+
 	}
 
-	@PutMapping(path = "/upload{id}")
-	public ResponseEntity<String> update(@PathVariable("id") Integer id, @RequestBody OrdineRequest ordineRequest) throws BadHttpRequest {
+	@PutMapping(path = "/update")
+	public ResponseEntity<String> update( @RequestBody OrdineRequest ordineRequest) throws BadHttpRequest {
 		if (ordineService.getOrdineById(ordineRequest.getId()) != null) {  
 			if(ordineService.uploadOrdine(ordineRequest)) {
 				return new ResponseEntity<>("Ordine aggiornato con successo", HttpStatus.OK);
