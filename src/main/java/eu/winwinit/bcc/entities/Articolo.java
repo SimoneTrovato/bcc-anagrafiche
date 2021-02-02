@@ -4,38 +4,41 @@ package eu.winwinit.bcc.entities;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "articoli")
 
 public class Articolo {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)	
+	@Column(name = "id", unique = true, nullable = true)
 	private Integer id;
+
+	@Column(name = "nome", length = 45)
 	private String nome;
+
+	@Column(name = "codice")
 	private Integer codice;
-	
+
+	@JsonIgnore
+	@ElementCollection(targetClass=OrdineArticolo.class)
+	@OneToMany(mappedBy = "articolo")
+	private List<OrdineArticolo> ordineArticolo;
+
 	public Articolo() {
 
 	}
 
-	public Articolo(Integer id, String nome, Integer codice) {
-		super();
-		this.id = id;
-		this.nome = nome;
-		this.codice = codice;
-	}
-
-	@Id
-//	@GeneratedValue(strategy = IDENTITY)
-	
-	@Column(name = "id", unique = true, nullable = true)
 	public Integer getId() {
 		return this.id;
 	}
@@ -44,7 +47,6 @@ public class Articolo {
 		this.id = id;
 	}
 
-	@Column(name = "nome", length = 45)
 	public String getNome() {
 		return nome;
 	}
@@ -52,8 +54,8 @@ public class Articolo {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
-	@Column(name = "codice")
+
+
 	public Integer getCodice() {
 		return codice;
 	}
@@ -62,8 +64,15 @@ public class Articolo {
 		this.codice = codice;
 	}
 
-	@OneToMany(mappedBy = "articolo")
-	@NotFound(action = NotFoundAction.IGNORE)
-	private List<OrdineArticolo> ordinearticolo;
-	
+	@JsonIgnore
+	public List<OrdineArticolo> getOrdineArticolo() {
+		return ordineArticolo;
+	}
+
+	public void setOrdinearticolo(List<OrdineArticolo> ordineArticolo) {
+		this.ordineArticolo = ordineArticolo;
+	}
+
+
+
 }

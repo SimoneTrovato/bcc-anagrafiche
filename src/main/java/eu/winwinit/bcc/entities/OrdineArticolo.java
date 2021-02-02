@@ -7,18 +7,28 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "ordini_articoli")
+@Table(name="ordini_articoli")
 public class OrdineArticolo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@EmbeddedId
+	private OrdineArticoloPk pk;
+
+	@ManyToOne
+	@JoinColumn(name="id_ordine", insertable=false, updatable=false )
+	private Ordine ordine;
+
+	@ManyToOne
+	@JoinColumn(name="id_articolo", insertable=false, updatable=false)
+	private Articolo articolo;
+	
+	@Column(name="quantità")
 	private Integer quantità;
 
 	public OrdineArticolo() {
@@ -29,28 +39,12 @@ public class OrdineArticolo implements Serializable {
 		this.pk = pk;
 	}
 
-	@Column(name="quantità")
 	public Integer getQuantità() {
 		return quantità;
 	}
 	public void setQuantità(Integer quantità) {
 		this.quantità=quantità;
 	}
-
-	@EmbeddedId
-	private OrdineArticoloPk pk;
-
-	@ManyToOne
-	@NotFound(action = NotFoundAction.IGNORE)
-	@MapsId("idOrdine")
-	@JoinColumn(name="id_ordine")
-	private Ordine ordine;
-
-	@ManyToOne
-	@NotFound(action = NotFoundAction.IGNORE)
-	@MapsId("idArticolo")
-	@JoinColumn(name="id_articolo")
-	private Articolo articolo;
 
 	public OrdineArticoloPk getPk() {
 		return pk;
@@ -60,6 +54,7 @@ public class OrdineArticolo implements Serializable {
 		this.pk = pk;
 	}
 
+	@JsonIgnore
 	public Ordine getOrdine() {
 		return ordine;
 	}

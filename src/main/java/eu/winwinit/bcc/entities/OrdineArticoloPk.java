@@ -2,13 +2,18 @@ package eu.winwinit.bcc.entities;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
-@Embeddable
 
+@Embeddable
 public class OrdineArticoloPk implements Serializable
 {
 	private static final long serialVersionUID = 1L;
+	
+	@Column(name="id_articolo", insertable=false, updatable=false)
 	private Integer idArticolo;
+	
+	@Column(name="id_ordine", insertable=false, updatable=false)
 	private Integer idOrdine;
 	
 	public OrdineArticoloPk() {
@@ -16,7 +21,6 @@ public class OrdineArticoloPk implements Serializable
 	}
 
 	public OrdineArticoloPk(Integer idArticolo, Integer idOrdine) {
-		super();
 		this.idArticolo = idArticolo;
 		this.idOrdine = idOrdine;
 	}

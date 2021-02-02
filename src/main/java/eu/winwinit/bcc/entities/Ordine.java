@@ -14,32 +14,30 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "ordini")
-
 public class Ordine {
-
-	private Integer id;
-	//formato yyyy-mm-dd
-	private Date data;
-	private String cliente;
-
-	public Ordine() {
-	}
-
-	public Ordine(Integer id, Date data, String cliente) {
-		super();
-		this.id = id;
-		this.data = data;
-		this.cliente = cliente;
-	}
 
 	@Id
 	@GeneratedValue(strategy = IDENTITY)
 	@Column(name = "id", unique = true, nullable = true)
+	private Integer id;
+
+	@Column(name="data")
+	private Date data;
+	
+	@Column(name="cliente")
+	private String cliente;
+	
+	@OneToMany(mappedBy="ordine")
+	private List<OrdineArticolo> ordiniArticoli;
+
+	public Ordine() {
+	}
+
+
 	public Integer getId() {
 		return this.id;
 	}
@@ -48,26 +46,28 @@ public class Ordine {
 		this.id = id;
 	}
 
-	@Column(name="data")
 	public Date getData() {
 		return data;
 	}
 	public void setData(Date data) {
 		this.data=data;
 	}
-	
-	@Column(name="cliente")
+
+
 	public String getCliente() {
 		return cliente;
 	}
 	public void setCliente(String cliente) {
 		this.cliente=cliente;
 	}
-	
-	@OneToMany(mappedBy="ordine")
-	@NotFound(action = NotFoundAction.IGNORE)
-	 private List<OrdineArticolo> ordiniArticoli;
-	
-	
-	
+
+	public void setOrdiniArticoli(List<OrdineArticolo> ordiniArticoli) {
+		this.ordiniArticoli = ordiniArticoli;
+	}
+
+	@JsonIgnore
+	public List<OrdineArticolo> getOrdiniArticoli() {
+		return ordiniArticoli;
+	}
+
 }
